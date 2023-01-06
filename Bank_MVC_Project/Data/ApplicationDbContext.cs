@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Bank_MVC_Project.Models;
 
 namespace Bank_MVC_Project.Data
 {
@@ -9,5 +10,8 @@ namespace Bank_MVC_Project.Data
             : base(options)
         {
         }
+        public DbSet<BankUser> BankUsers { get; set; }
+        public DbSet<BankMessage> BankMessage { get; set; }
+        public DbSet<BankTransaction> BankTransaction { get; set; }
     }
 }

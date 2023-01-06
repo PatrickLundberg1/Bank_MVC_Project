@@ -3,7 +3,9 @@
     public class BankUser
     {
         public int Id { get; set; }
-        public string? Name { get; set; }
+        // Id from registration, in the AspNetUsers table.
+        // Used for the program to connect AspNetUsers and BankUsers
+        public string? AspNetId { get; set; }
 
         // BankMessage should be deletable from each user, one to many
         public List<BankMessage> Messages { get; set; } = new List<BankMessage>();
