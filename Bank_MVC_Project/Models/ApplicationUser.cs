@@ -1,12 +1,11 @@
-﻿namespace Bank_MVC_Project.Models
-{
-    public class BankUser
-    {
-        public int Id { get; set; }
-        // Id from registration, in the AspNetUsers table.
-        // Used for the program to connect AspNetUsers and BankUsers
-        public string? AspNetId { get; set; }
+﻿using Microsoft.AspNetCore.Identity;
 
+namespace Bank_MVC_Project.Models
+{
+    public class ApplicationUser : IdentityUser 
+    {
+        // Bank users money amount in Swedish Kr, starts at 1000 (test value) 
+        public int Money { get; set; } = 1000;
         // BankMessage should be deletable from each user, one to many
         public List<BankMessage> Messages { get; set; } = new List<BankMessage>();
 

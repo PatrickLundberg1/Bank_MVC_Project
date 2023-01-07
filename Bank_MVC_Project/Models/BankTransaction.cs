@@ -7,10 +7,10 @@
         public DateTime Date { get; set; }
 
         // Used when displaying if the transaction is sent or received
-        public int SenderId { get; set; }
-        public int RecId { get; set; }
+        public string? SenderId { get; set; }
+        public string? RecId { get; set; }
 
         // Many to many, both the sender and receiver
-        public List<BankUser> BankUsers { get; set; } = new List<BankUser>();
+        public List<ApplicationUser> ApplicationUsers { get; set; } = new List<ApplicationUser>();
     }
 }

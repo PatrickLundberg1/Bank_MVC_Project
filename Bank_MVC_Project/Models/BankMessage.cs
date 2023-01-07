@@ -7,7 +7,7 @@
         public DateTime Date { get; set; }
 
         // Link to BankUser, BankMessage is deletable for each user so each user gets a unique object
-        public int BankUserId { get; set; }
-        public BankUser MessageReceiver { get; set; } = new BankUser();
+        public string? ApplicationUserId { get; set; }
+        public ApplicationUser? MessageReceiver { get; set; }
     }
 }
