@@ -5,6 +5,15 @@
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
+    var curr_user = await UserManager.GetUserAsync(User);
+    var user_roles = await SignInManager.UserManager.GetUsersInRoleAsync("Admin");
+
+    if (user_roles.Contains(curr_user))
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" href="BankMessages/Create">Send Message</a>
+        </li>
+    }
     <li class="nav-item">
         <a class="nav-link text-dark" href="BankTransactions/Create">Create Transaction</a>
     </li>

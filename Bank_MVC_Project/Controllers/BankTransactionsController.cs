@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Bank_MVC_Project.Data;
 using Bank_MVC_Project.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Bank_MVC_Project.Controllers
 {
@@ -22,7 +23,7 @@ namespace Bank_MVC_Project.Controllers
         // GET: BankTransactions
         public async Task<IActionResult> Index()
         {
-            return View(await _context.BankTransaction.ToListAsync());
+            return View(await _context.BankTransaction.Include(b => b.ApplicationUsers).ToListAsync());
         }
 
         // GET: BankTransactions/Details/5
@@ -56,8 +57,42 @@ namespace Bank_MVC_Project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Amount,Date,SenderId,RecId")] BankTransaction bankTransaction)
         {
+            if(bankTransaction.SenderId == bankTransaction.RecId)
+            {
+                return BadRequest("You can not send a transaction to yourself.");
+            }
+            else if(bankTransaction.Amount <= 0)
+            {
+                return BadRequest("The transaction amount needs to be larger than zero to be legitimate.");
+            }
+
+            ApplicationUser? sender = await _context.FindAsync<ApplicationUser>(bankTransaction.SenderId);
+            ApplicationUser? receiver = await _context.FindAsync<ApplicationUser>(bankTransaction.RecId);
+
+            if(sender == null || receiver == null)
+            {
+                return NotFound();
+            }
+
+            int money_left = sender.Money;
+            if(money_left < bankTransaction.Amount)
+            {
+                //return View(bankTransaction);
+                return BadRequest("The transaction amount exceeds your current amount of money.");
+                //return Problem("Not enough money left on your account for the transaction.");
+            }
+
             if (ModelState.IsValid)
             {
+                sender.Money -= bankTransaction.Amount;
+                sender.Transactions.Add(bankTransaction);
+
+                receiver.Money += bankTransaction.Amount;
+                receiver.Transactions.Add(bankTransaction);
+
+                _context.Update(sender);
+                _context.Update(receiver);
+
                 _context.Add(bankTransaction);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));

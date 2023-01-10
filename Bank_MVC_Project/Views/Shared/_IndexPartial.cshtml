@@ -2,24 +2,17 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
-<ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
         var curr_user = await UserManager.GetUserAsync(User);
-        var range_size = Math.Min(5, curr_user.Transactions.Count);
 
         <p>You are now logged in!</p>
+        <p>Your bank Id: @curr_user.Id</p>
         <p>You currently have @curr_user.Money Kr on the bank.</p>
-        <br />
-        <p>Latest (max. 5) transactions:</p>
-        
-        @foreach (var trans in curr_user.Transactions.GetRange(0, range_size))
-        {
-            <div>This is a transaction!</div>
-        }
+
+        <a class="nav-link" href="BankTransactions">List of your transactions</a>
     }
 else
 {
         <p>Please login, or register, to use our services.</p>
 }
-</ul>

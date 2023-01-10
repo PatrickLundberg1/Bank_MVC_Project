@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Bank_MVC_Project.Data;
 using Bank_MVC_Project.Models;
+using NuGet.Protocol.Plugins;
 
 namespace Bank_MVC_Project.Controllers
 {
@@ -59,8 +60,19 @@ namespace Bank_MVC_Project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Message,Date,ApplicationUserId")] BankMessage bankMessage)
         {
+            ApplicationUser? receiver = await _context.FindAsync<ApplicationUser>(bankMessage.ApplicationUserId);
+
+            if (receiver == null)
+            {
+                return NotFound();
+            }
+
             if (ModelState.IsValid)
             {
+                receiver.Messages.Add(bankMessage);
+
+                _context.Update(receiver);
+
                 _context.Add(bankMessage);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
