@@ -9,9 +9,12 @@ using Bank_MVC_Project.Data;
 using Bank_MVC_Project.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Policy;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Principal;
 
 namespace Bank_MVC_Project.Controllers
 {
+    [Authorize]
     public class BankTransactionsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -34,7 +37,7 @@ namespace Bank_MVC_Project.Controllers
             {
                 return NotFound();
             }
-
+            
             var bankTransaction = await _context.BankTransaction
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (bankTransaction == null)

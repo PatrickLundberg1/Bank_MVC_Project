@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using Bank_MVC_Project.Data;
 using Bank_MVC_Project.Models;
 using NuGet.Protocol.Plugins;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bank_MVC_Project.Controllers
 {
+    [Authorize]
     public class BankMessagesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -47,6 +49,7 @@ namespace Bank_MVC_Project.Controllers
         }
 
         // GET: BankMessages/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id");
@@ -58,9 +61,39 @@ namespace Bank_MVC_Project.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Message,Date,ApplicationUserId")] BankMessage bankMessage)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create([Bind("Id,Message,Date,ApplicationUserId")] BankMessage bankMessage, string? globalCheck, string userId)
         {
-            ApplicationUser? receiver = await _context.FindAsync<ApplicationUser>(bankMessage.ApplicationUserId);
+            // Checkbox results (like in globalCheck variable) act a bit strange
+            // if they are checked, you get the string "on", if not you get null
+            ApplicationUser? receiver = null;
+
+            if (globalCheck != null)
+            {
+                // checkbox checked, send to every other user
+                List<ApplicationUser> receivers = _context.Users.Where(u => u.Id != userId).ToList();
+
+                foreach (ApplicationUser user in receivers)
+                {
+                    BankMessage newMess = new BankMessage();
+                    newMess.Message = bankMessage.Message;
+                    newMess.Date = bankMessage.Date;
+                    newMess.ApplicationUserId = user.Id;
+
+                    receiver = await _context.FindAsync<ApplicationUser>(user.Id);
+
+                    receiver.Messages.Add(newMess);
+
+                    _context.Update(receiver);
+
+                    _context.Add(newMess);
+                }
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+            // checkbox not checked, continue here
+            receiver = await _context.FindAsync<ApplicationUser>(bankMessage.ApplicationUserId);
 
             if (receiver == null)
             {
@@ -81,8 +114,8 @@ namespace Bank_MVC_Project.Controllers
             return View(bankMessage);
         }
 
-        // GET: BankMessages/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+            // GET: BankMessages/Delete/5
+            public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.BankMessage == null)
             {
