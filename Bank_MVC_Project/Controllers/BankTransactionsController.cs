@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Security.Policy;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Principal;
+using System.Security.Claims;
 
 namespace Bank_MVC_Project.Controllers
 {
@@ -43,6 +44,12 @@ namespace Bank_MVC_Project.Controllers
             if (bankTransaction == null)
             {
                 return NotFound();
+            }
+
+            string currId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (bankTransaction.SenderId != currId && bankTransaction.RecId != currId)
+            {
+                return new RedirectResult("~/Identity/Account/AccessDenied");
             }
 
             return View(bankTransaction);

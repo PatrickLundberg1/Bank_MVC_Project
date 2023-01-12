@@ -36,8 +36,6 @@
             <div class="form-group">
                 <input type="checkbox" id="globalCheck" name="globalCheck" onchange="SwitchIdInput()">
                 <label for="globalCheck">Send to all customers?</label><br />
-                
-                <input type="hidden" name="userId" value="@user_id" />
 
                 <label asp-for="ApplicationUserId" class="control-label"></label>
                 <select asp-for="ApplicationUserId" id="selectId" class="form-control" asp-items="@other_ids"></select>

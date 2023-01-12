@@ -9,6 +9,7 @@ using Bank_MVC_Project.Data;
 using Bank_MVC_Project.Models;
 using NuGet.Protocol.Plugins;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Bank_MVC_Project.Controllers
 {
@@ -45,6 +46,12 @@ namespace Bank_MVC_Project.Controllers
                 return NotFound();
             }
 
+            string currId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (bankMessage.ApplicationUserId != currId)
+            {
+                return new RedirectResult("~/Identity/Account/AccessDenied");
+            }
+
             return View(bankMessage);
         }
 
@@ -62,7 +69,7 @@ namespace Bank_MVC_Project.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("Id,Message,Date,ApplicationUserId")] BankMessage bankMessage, string? globalCheck, string userId)
+        public async Task<IActionResult> Create([Bind("Id,Message,Date,ApplicationUserId")] BankMessage bankMessage, string? globalCheck)
         {
             // Checkbox results (like in globalCheck variable) act a bit strange
             // if they are checked, you get the string "on", if not you get null
@@ -71,7 +78,8 @@ namespace Bank_MVC_Project.Controllers
             if (globalCheck != null)
             {
                 // checkbox checked, send to every other user
-                List<ApplicationUser> receivers = _context.Users.Where(u => u.Id != userId).ToList();
+                string currId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                List<ApplicationUser> receivers = _context.Users.Where(u => u.Id != currId).ToList();
 
                 foreach (ApplicationUser user in receivers)
                 {
@@ -114,8 +122,8 @@ namespace Bank_MVC_Project.Controllers
             return View(bankMessage);
         }
 
-            // GET: BankMessages/Delete/5
-            public async Task<IActionResult> Delete(int? id)
+        // GET: BankMessages/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.BankMessage == null)
             {
@@ -125,9 +133,16 @@ namespace Bank_MVC_Project.Controllers
             var bankMessage = await _context.BankMessage
                 .Include(b => b.MessageReceiver)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (bankMessage == null)
             {
                 return NotFound();
+            }
+
+            string currId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (bankMessage.ApplicationUserId != currId)
+            {
+                return new RedirectResult("~/Identity/Account/AccessDenied");
             }
 
             return View(bankMessage);
