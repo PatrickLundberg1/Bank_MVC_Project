@@ -11,11 +11,14 @@
     if (user_roles.Contains(curr_user))
     {
         <li class="nav-item">
-            <a class="nav-link text-dark" href="BankMessages/Create">Send Message</a>
+            <a class="nav-link text-dark" asp-area="" asp-controller="BankMessages" asp-action="Create">Send Message</a>
         </li>
     }
     <li class="nav-item">
-        <a class="nav-link text-dark" href="BankTransactions/Create">Create Transaction</a>
+            <a class="nav-link text-dark" asp-area="" asp-controller="BankMessages" asp-action="Index">Message Inbox</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="" asp-controller="BankTransactions" asp-action="Create">Create Transaction</a>
     </li>
     <li class="nav-item">
         <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>

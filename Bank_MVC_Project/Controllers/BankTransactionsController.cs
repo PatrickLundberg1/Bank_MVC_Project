@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Bank_MVC_Project.Data;
 using Bank_MVC_Project.Models;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Policy;
 
 namespace Bank_MVC_Project.Controllers
 {
@@ -71,7 +72,7 @@ namespace Bank_MVC_Project.Controllers
 
             if(sender == null || receiver == null)
             {
-                return NotFound();
+                return BadRequest("The transaction receiver does not exist.");
             }
 
             int money_left = sender.Money;
@@ -98,94 +99,6 @@ namespace Bank_MVC_Project.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(bankTransaction);
-        }
-
-        // GET: BankTransactions/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null || _context.BankTransaction == null)
-            {
-                return NotFound();
-            }
-
-            var bankTransaction = await _context.BankTransaction.FindAsync(id);
-            if (bankTransaction == null)
-            {
-                return NotFound();
-            }
-            return View(bankTransaction);
-        }
-
-        // POST: BankTransactions/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Amount,Date,SenderId,RecId")] BankTransaction bankTransaction)
-        {
-            if (id != bankTransaction.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(bankTransaction);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!BankTransactionExists(bankTransaction.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(bankTransaction);
-        }
-
-        // GET: BankTransactions/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.BankTransaction == null)
-            {
-                return NotFound();
-            }
-
-            var bankTransaction = await _context.BankTransaction
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (bankTransaction == null)
-            {
-                return NotFound();
-            }
-
-            return View(bankTransaction);
-        }
-
-        // POST: BankTransactions/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            if (_context.BankTransaction == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.BankTransaction'  is null.");
-            }
-            var bankTransaction = await _context.BankTransaction.FindAsync(id);
-            if (bankTransaction != null)
-            {
-                _context.BankTransaction.Remove(bankTransaction);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
         }
 
         private bool BankTransactionExists(int id)

@@ -1,8 +1,11 @@
-﻿namespace Bank_MVC_Project.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Bank_MVC_Project.Models
 {
     public class BankMessage
     {
         public int Id { get; set; }
+        [Required()]
         public string? Message { get; set; }
         public DateTime Date { get; set; }
 
